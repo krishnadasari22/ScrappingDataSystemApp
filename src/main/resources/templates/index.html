@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Scraping App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #input-section {
+            margin-bottom: 20px;
+        }
+
+        #result-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #result-table th, #result-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        #result-table th {
+            background-color: #f2f2f2;
+        }
+
+        #scrape-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>Data Scraping App</h1>
+
+<div id="input-section">
+    <label for="phone">Phone Number:</label>
+    <input type="text" id="phone" name="phone" required>
+
+    <label for="email">Email Address:</label>
+    <input type="email" id="email" name="email" required>
+
+    <button id="scrape-btn">Scrape Data</button>
+</div>
+
+<div id="result-section">
+    <h2>Scraped Data</h2>
+    <table id="result-table">
+        <tr>
+            <th>Platform</th>
+            <th>Registered</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Last Seen</th>
+            <th>Profile Picture</th>
+        </tr>
+    </table>
+</div>
+
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrapeButton = document.getElementById('scrape-btn');
+            scrapeButton.addEventListener('click', () => {
+                const phoneInput = document.getElementById('phone');
+                const emailInput = document.getElementById('email');
+                const resultTable = document.getElementById('result-table');
+
+                const data = {
+                    phoneNumber: phoneInput.value,
+                    emailAddress: emailInput.value
+                };
+
+                fetch('/scrape', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Clear previous results
+                    resultTable.innerHTML = '<tr><th>Platform</th><th>Registered</th><th>Name</th><th>Status</th><th>Last Seen</th><th>Profile Picture</th></tr>';
+
+                    // Update table with scraped data
+                    data.forEach(result => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${result.platform}</td>
+                            <td>${result.registered}</td>
+                            <td>${result.name}</td>
+                            <td>${result.status}</td>
+                            <td>${result.lastSeen}</td>
+                            <td>${result.profilePictureUrl ? `<img src="${result.profilePictureUrl}" alt="Profile Picture" width="50">` : ''}</td>
+                        `;
+                        resultTable.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
